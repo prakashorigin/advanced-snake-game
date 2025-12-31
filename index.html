@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Advanced Snake Game - HTML5, CSS3, JavaScript">
+    <meta name="author" content="Your Name">
+    <title>Advanced Snake Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <header class="header">
+            <h1>🐍 ADVANCED SNAKE GAME</h1>
+            <p class="tagline">Eat, Grow, Survive</p>
+        </header>
+
+        <!-- Game Statistics Section -->
+        <div class="stats-container">
+            <div class="stat-box">
+                <label>Score</label>
+                <div id="score" class="stat-value">0</div>
+            </div>
+            <div class="stat-box">
+                <label>Level</label>
+                <div id="level" class="stat-value">1</div>
+            </div>
+            <div class="stat-box">
+                <label>Speed</label>
+                <div id="speed" class="stat-value">100ms</div>
+            </div>
+            <div class="stat-box">
+                <label>High Score</label>
+                <div id="highScore" class="stat-value">0</div>
+            </div>
+        </div>
+
+        <!-- Main Game Board -->
+        <div class="game-wrapper">
+            <div id="game-board" class="game-board"></div>
+            
+            <!-- Game Status Overlay -->
+            <div id="game-overlay" class="game-overlay hidden">
+                <div class="overlay-content">
+                    <h2 id="overlay-title">GAME OVER!</h2>
+                    <div class="overlay-stats">
+                        <p>Score: <span id="final-score">0</span></p>
+                        <p>Level: <span id="final-level">0</span></p>
+                        <p>Food Eaten: <span id="food-eaten">0</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control Buttons Section -->
+        <div class="controls-container">
+            <button id="startBtn" class="btn btn-primary">▶ START</button>
+            <button id="pauseBtn" class="btn btn-warning" disabled>⏸ PAUSE</button>
+            <button id="resumeBtn" class="btn btn-success hidden" disabled>▶ RESUME</button>
+            <button id="restartBtn" class="btn btn-danger">🔄 RESTART</button>
+        </div>
+
+        <!-- Touch Controls Section (Mobile) -->
+        <div class="touch-controls" id="touchControls">
+            <div class="direction-pad">
+                <button id="upBtn" class="arrow-btn up-btn" title="Up">▲</button>
+                <div class="middle-row">
+                    <button id="leftBtn" class="arrow-btn left-btn" title="Left">◄</button>
+                    <span class="center-dot"></span>
+                    <button id="rightBtn" class="arrow-btn right-btn" title="Right">►</button>
+                </div>
+                <button id="downBtn" class="arrow-btn down-btn" title="Down">▼</button>
+            </div>
+        </div>
+
+        <!-- Instructions Section -->
+        <div class="instructions">
+            <h3>📖 How to Play</h3>
+            <div class="instructions-grid">
+                <div class="instruction-item">
+                    <strong>⌨️ Keyboard:</strong>
+                    <p>Use Arrow Keys (↑ ↓ ← →) to move</p>
+                </div>
+                <div class="instruction-item">
+                    <strong>📱 Mobile:</strong>
+                    <p>Tap direction buttons or swipe</p>
+                </div>
+                <div class="instruction-item">
+                    <strong>🎯 Goal:</strong>
+                    <p>Eat food, avoid walls & yourself</p>
+                </div>
+                <div class="instruction-item">
+                    <strong>⚡ Speed:</strong>
+                    <p>Increases every 5 points</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="features">
+            <h3>✨ Features</h3>
+            <ul>
+                <li>✅ Real-time score tracking</li>
+                <li>✅ Progressive difficulty (speed increases with score)</li>
+                <li>✅ Level system</li>
+                <li>✅ Collision detection (walls & self)</li>
+                <li>✅ Keyboard controls (Arrow keys)</li>
+                <li>✅ Mobile touch controls & swipe support</li>
+                <li>✅ Pause/Resume functionality</li>
+                <li>✅ High score memory (localStorage)</li>
+                <li>✅ Responsive design (mobile-friendly)</li>
+                <li>✅ Professional UI/UX</li>
+            </ul>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2025 Advanced Snake Game | Built with HTML5, CSS3 & JavaScript</p>
+            <p>🌐 Localhost URL: <code>http://localhost:8000</code></p>
+        </footer>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>
