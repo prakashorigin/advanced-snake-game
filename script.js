@@ -3,6 +3,8 @@ const gameBoard = document.getElementById("game-board");
 const scoreEl = document.getElementById("score");
 const levelEl = document.getElementById("level");
 const speedEl = document.getElementById("speed");
+const boardSizeEl = document.getElementById("boardSize");
+const difficultyEl = document.getElementById("difficulty");
 const highScoreEl = document.getElementById("highScore");
 
 const startBtn = document.getElementById("startBtn");
@@ -22,21 +24,49 @@ const downBtn = document.getElementById("downBtn");
 const leftBtn = document.getElementById("leftBtn");
 const rightBtn = document.getElementById("rightBtn");
 
-// ===================== GAME VARIABLES =====================
-const GRID_SIZE = 20; // 400px / 20 = 20px per cell
-const BOARD_WIDTH = 400;
-const BOARD_HEIGHT = 400;
-const INITIAL_SPEED = 100; // milliseconds
-const MIN_SPEED = 40;
-const SPEED_INCREMENT = 5; // ms decrease per food eaten
+// ===================== GAME CONFIGURATION =====================
+const MAX_LEVEL = 25;
+const FOOD_COLORS = ["red", "blue", "black", "green", "yellow"];
 
+// Level progression table (Level 1-25)
+const LEVEL_CONFIG = {
+    1: { boardSize: 400, gridSize: 20, baseSpeed: 150, difficulty: "EASY" },
+    2: { boardSize: 400, gridSize: 20, baseSpeed: 140, difficulty: "EASY" },
+    3: { boardSize: 400, gridSize: 20, baseSpeed: 130, difficulty: "EASY" },
+    4: { boardSize: 400, gridSize: 20, baseSpeed: 120, difficulty: "EASY" },
+    5: { boardSize: 420, gridSize: 20, baseSpeed: 110, difficulty: "EASY+" },
+    6: { boardSize: 420, gridSize: 20, baseSpeed: 100, difficulty: "MEDIUM" },
+    7: { boardSize: 420, gridSize: 20, baseSpeed: 90, difficulty: "MEDIUM" },
+    8: { boardSize: 440, gridSize: 20, baseSpeed: 85, difficulty: "MEDIUM" },
+    9: { boardSize: 440, gridSize: 20, baseSpeed: 80, difficulty: "MEDIUM" },
+    10: { boardSize: 460, gridSize: 20, baseSpeed: 75, difficulty: "MEDIUM+" },
+    11: { boardSize: 460, gridSize: 20, baseSpeed: 70, difficulty: "HARD" },
+    12: { boardSize: 480, gridSize: 20, baseSpeed: 65, difficulty: "HARD" },
+    13: { boardSize: 480, gridSize: 20, baseSpeed: 60, difficulty: "HARD" },
+    14: { boardSize: 500, gridSize: 20, baseSpeed: 55, difficulty: "HARD" },
+    15: { boardSize: 500, gridSize: 20, baseSpeed: 50, difficulty: "HARD+" },
+    16: { boardSize: 520, gridSize: 20, baseSpeed: 45, difficulty: "VERY HARD" },
+    17: { boardSize: 520, gridSize: 20, baseSpeed: 40, difficulty: "VERY HARD" },
+    18: { boardSize: 540, gridSize: 20, baseSpeed: 35, difficulty: "VERY HARD" },
+    19: { boardSize: 540, gridSize: 20, baseSpeed: 30, difficulty: "EXTREME" },
+    20: { boardSize: 560, gridSize: 20, baseSpeed: 28, difficulty: "EXTREME" },
+    21: { boardSize: 560, gridSize: 20, baseSpeed: 25, difficulty: "INSANE" },
+    22: { boardSize: 580, gridSize: 20, baseSpeed: 22, difficulty: "INSANE" },
+    23: { boardSize: 580, gridSize: 20, baseSpeed: 20, difficulty: "INSANE" },
+    24: { boardSize: 600, gridSize: 20, baseSpeed: 18, difficulty: "NIGHTMARE" },
+    25: { boardSize: 600, gridSize: 20, baseSpeed: 15, difficulty: "GODMODE" }
+};
+
+// ===================== GAME VARIABLES =====================
 let snake = [];
 let food = {};
 let direction = "RIGHT";
-let nextDirection = "RIGHT"; // To prevent simultaneous direction changes
+let nextDirection = "RIGHT";
 let score = 0;
 let level = 1;
-let speed = INITIAL_SPEED;
+let speed = 150;
+let boardSize = 400;
+let gridSize = 20;
 let gameInterval = null;
 let isGameRunning = false;
 let isGamePaused = false;
@@ -46,13 +76,22 @@ let highScore = localStorage.getItem("snakeHighScore") || 0;
 // ===================== INITIALIZATION =====================
 function initializeGame() {
     // Reset all game variables
-    snake = [{ x: 200, y: 200 }];
+    snake = [{ x: boardSize / 2, y: boardSize / 2 }];
+    
+    // Get level config
+    const levelConfig = LEVEL_CONFIG[level];
+    boardSize = levelConfig.boardSize;
+    gridSize = levelConfig.gridSize;
+    speed = levelConfig.baseSpeed;
+    
+    // Update board size
+    gameBoard.style.width = boardSize + "px";
+    gameBoard.style.height = boardSize + "px";
+    
     food = generateRandomFood();
     direction = "RIGHT";
     nextDirection = "RIGHT";
     score = 0;
-    level = 1;
-    speed = INITIAL_SPEED;
     foodEatenCount = 0;
     isGameRunning = false;
     isGamePaused = false;
@@ -64,6 +103,8 @@ function initializeGame() {
     updateScore();
     updateLevel();
     updateSpeed();
+    updateBoardSize();
+    updateDifficulty();
     updateHighScore();
     draw();
 
@@ -74,21 +115,29 @@ function initializeGame() {
     restartBtn.disabled = false;
 }
 
-function updateHighScore() {
-    highScoreEl.textContent = highScore;
-}
-
 function updateScore() {
     scoreEl.textContent = score;
 }
 
 function updateLevel() {
-    level = Math.floor(score / 5) + 1;
-    levelEl.textContent = level;
+    levelEl.textContent = level + "/" + MAX_LEVEL;
 }
 
 function updateSpeed() {
     speedEl.textContent = speed + "ms";
+}
+
+function updateBoardSize() {
+    boardSizeEl.textContent = boardSize + "px";
+}
+
+function updateDifficulty() {
+    const levelConfig = LEVEL_CONFIG[level];
+    difficultyEl.textContent = levelConfig.difficulty;
+}
+
+function updateHighScore() {
+    highScoreEl.textContent = highScore;
 }
 
 // ===================== RANDOM FOOD GENERATION =====================
@@ -98,8 +147,9 @@ function generateRandomFood() {
 
     do {
         newFood = {
-            x: Math.floor(Math.random() * (BOARD_WIDTH / GRID_SIZE)) * GRID_SIZE,
-            y: Math.floor(Math.random() * (BOARD_HEIGHT / GRID_SIZE)) * GRID_SIZE
+            x: Math.floor(Math.random() * (boardSize / gridSize)) * gridSize,
+            y: Math.floor(Math.random() * (boardSize / gridSize)) * gridSize,
+            color: FOOD_COLORS[Math.floor(Math.random() * FOOD_COLORS.length)]
         };
 
         // Check if food is on snake
@@ -114,20 +164,24 @@ function draw() {
     // Clear board
     gameBoard.innerHTML = "";
 
-    // Draw snake
+    // Draw snake (white with rounded corners)
     snake.forEach((segment, index) => {
         const snakeElement = document.createElement("div");
         snakeElement.className = "snake";
         snakeElement.style.left = segment.x + "px";
         snakeElement.style.top = segment.y + "px";
+        snakeElement.style.width = gridSize + "px";
+        snakeElement.style.height = gridSize + "px";
         gameBoard.appendChild(snakeElement);
     });
 
-    // Draw food
+    // Draw food (with dynamic color)
     const foodElement = document.createElement("div");
-    foodElement.className = "food";
+    foodElement.className = "food " + food.color;
     foodElement.style.left = food.x + "px";
     foodElement.style.top = food.y + "px";
+    foodElement.style.width = gridSize + "px";
+    foodElement.style.height = gridSize + "px";
     gameBoard.appendChild(foodElement);
 }
 
@@ -143,16 +197,16 @@ function moveSnake() {
     // Move head in current direction
     switch (direction) {
         case "UP":
-            head.y -= GRID_SIZE;
+            head.y -= gridSize;
             break;
         case "DOWN":
-            head.y += GRID_SIZE;
+            head.y += gridSize;
             break;
         case "LEFT":
-            head.x -= GRID_SIZE;
+            head.x -= gridSize;
             break;
         case "RIGHT":
-            head.x += GRID_SIZE;
+            head.x += gridSize;
             break;
     }
 
@@ -164,17 +218,42 @@ function moveSnake() {
         score++;
         foodEatenCount++;
         updateScore();
-        updateLevel();
 
-        food = generateRandomFood();
-
-        // Increase speed
-        if (speed > MIN_SPEED) {
-            speed -= SPEED_INCREMENT;
+        // Check if level should increase (every food eaten)
+        if (level < MAX_LEVEL && foodEatenCount % (6 - (level % 5)) === 0) {
+            level++;
+            
+            // Update board and speed for new level
+            const levelConfig = LEVEL_CONFIG[level];
+            boardSize = levelConfig.boardSize;
+            gridSize = levelConfig.gridSize;
+            speed = levelConfig.baseSpeed;
+            
+            gameBoard.style.width = boardSize + "px";
+            gameBoard.style.height = boardSize + "px";
+            
+            updateLevel();
             updateSpeed();
+            updateBoardSize();
+            updateDifficulty();
+            
+            // Reset snake position for new board
+            snake = [{ x: boardSize / 2, y: boardSize / 2 }];
+            
+            // Restart with new speed
             clearInterval(gameInterval);
             gameInterval = setInterval(gameLoop, speed);
+        } else {
+            // Increase speed for every food eaten
+            if (speed > 10) {
+                speed -= 2;
+                updateSpeed();
+                clearInterval(gameInterval);
+                gameInterval = setInterval(gameLoop, speed);
+            }
         }
+
+        food = generateRandomFood();
     } else {
         // Remove tail if no food eaten
         snake.pop();
@@ -194,7 +273,7 @@ function checkCollision() {
     const head = snake[0];
 
     // Wall collision
-    if (head.x < 0 || head.x >= BOARD_WIDTH || head.y < 0 || head.y >= BOARD_HEIGHT) {
+    if (head.x < 0 || head.x >= boardSize || head.y < 0 || head.y >= boardSize) {
         return true;
     }
 
@@ -269,9 +348,9 @@ function endGame() {
     }
 
     // Show game over overlay
-    overlayTitle.textContent = "🎮 GAME OVER!";
+    overlayTitle.textContent = level === MAX_LEVEL ? "🎉 YOU WON!" : "🎮 GAME OVER!";
     finalScoreEl.textContent = score;
-    finalLevelEl.textContent = level;
+    finalLevelEl.textContent = level + "/" + MAX_LEVEL;
     foodEatenEl.textContent = foodEatenCount;
     gameOverlay.classList.remove("hidden");
 
@@ -284,6 +363,7 @@ function endGame() {
 
 function restartGame() {
     clearInterval(gameInterval);
+    level = 1;
     initializeGame();
 }
 
